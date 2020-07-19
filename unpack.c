@@ -22,7 +22,7 @@ void filecopyss (FILE *f1,long ll,char *args){
 			fread(&buffer,1,l,f1);
 			fwrite(&buffer,1,l,f2);
 		}
-
+		fclose(f2)
 }
 
  
@@ -51,7 +51,7 @@ void unpack(int argc,char *args[]){
 			filecopyss(f1,lll,name);
 			fseek(f1,l,SEEK_SET);
 		}
-	feof(f1);
+	fclose(f1);
 	}
 
 }
