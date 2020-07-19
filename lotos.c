@@ -8,7 +8,7 @@ int rnd(int count,int counts){
 	int i=0;
 	int r=0;
 	int ii=0;
-	int max=(16*2024-1);
+	int max=(16*1024-1);
 	r=random() & max;
 	counts=counts & max;
 	count=count & max;
