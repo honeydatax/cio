@@ -11,7 +11,7 @@ void filecopys (FILE *f1,int argc,char *args[]){
 		l=fread(&buffer,1,1024,f2);
 		fwrite(&buffer,1,l,f1);
 	}
-	feof(f2);
+	fclose(f2);
 
 }
 
@@ -59,7 +59,7 @@ void workspace(int argc,char *args[]){
 			l=ftell(f1);
 			
 		}
-	feof(f1);
+	fclose((f1);
 	}
 
 }
