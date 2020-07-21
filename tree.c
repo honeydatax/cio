@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define maxrecords 2048
+
 
 struct stacksss{
 	int size;
-	int stacks[1024];
+	int stacks[maxrecords];
 };
 
 
@@ -56,7 +58,7 @@ struct node{
 struct trees{
 	int size;
 	int roots;
-	struct node nodes[1024];
+	struct node nodes[maxrecords];
 };
 
 int starttree(struct trees *tree1){
@@ -66,20 +68,49 @@ int starttree(struct trees *tree1){
 
 int newnode(struct trees *tree1,char *caption,char *text){
 	int i=tree1->size;
+	int ii=0;
 	int n=strlen(caption);
 	struct node *nnode;
-	nnode=&tree1->nodes[tree1->size];
-	if(n>31)n=31;
-	strncpy(nnode->caption,caption,n);
-	n=strlen(text);
-	if(n>31)n=31;
-	strncpy(nnode->text,text,n);
-	nnode->back=-1;
-	nnode->nexts=-1;
-	nnode->parent=-1;
-	nnode->sun=-1;
-	nnode->delete=0;
-	tree1->size++;
+	if (tree1->size+1<maxrecords){
+		nnode=&tree1->nodes[tree1->size];
+		if(n>31)n=31;
+		strncpy(nnode->caption,caption,n);
+		nnode->caption[31]=0;
+		n=strlen(text);
+		if(n>31)n=31;
+		strncpy(nnode->text,text,n);
+		nnode->text[31]=0;
+		nnode->back=-1;
+		nnode->nexts=-1;
+		nnode->parent=-1;
+		nnode->sun=-1;
+		nnode->delete=0;
+		tree1->size++;
+	}else{
+		i=-1;
+		for(ii=0;i<tree1->size;i++){
+			nnode=&tree1->nodes[ii];
+			if(nnode->delete==-1)i=ii;
+		}
+		if(i!=-1){
+			nnode=&tree1->nodes[i];
+			if(n>31)n=31;
+			strncpy(nnode->caption,caption,n);
+			nnode->caption[31]=0;
+			n=strlen(text);
+			if(n>31)n=31;
+			strncpy(nnode->text,text,n);
+			nnode->text[31]=0;
+			nnode->back=-1;
+			nnode->nexts=-1;
+			nnode->parent=-1;
+			nnode->sun=-1;
+			nnode->delete=0;
+
+		}else{
+			printf("error no more space for nodes");
+		}
+	}
 	return i;
 }
 void reporttree(struct trees *tree1,int node0){
@@ -148,6 +179,7 @@ void reporttree(struct trees *tree1,int node0){
 void setfather(struct trees *tree1,int node0,int nodeme){
 	int i=0;
 	int b=0;
+	int bb=0;
 	struct node *nnode;
 	nnode=&tree1->nodes[node0];
 	if(nnode->sun==-1){
@@ -158,18 +190,19 @@ void setfather(struct trees *tree1,int node0,int nodeme){
 	}else{
 		b=nnode->sun;
 		nnode=&tree1->nodes[b];
+		bb=b;
 		while(b!=-1){
 			b=nnode->nexts;
 			if(b==-1){
 				nnode->nexts=nodeme;
 				nnode=&tree1->nodes[nodeme];
-				nnode->back=b;
+				nnode->back=bb;
 				nnode->nexts=-1;
 				b=-1;
 			}else{
 				b=nnode->nexts;
 				nnode=&tree1->nodes[b];
-
+				bb=b;
 			}
 		}
 	}
@@ -179,6 +212,145 @@ void settreeRoot(struct trees *tree1,int node0){
 	tree1->roots=node0;
 }
 
+void cleartree(struct trees *tree1){
+	tree1->size=0;
+	tree1->roots=-1;
+}
+
+void savetree(struct trees *tree1,char *name,long sizes){
+	FILE *f1;
+	f1=fopen(name,"w");
+	fwrite(tree1,sizes,1,f1);
+	fclose(f1);
+}
+
+void loadtree(struct trees *tree1,char *name,long sizes){
+	FILE *f1;
+	f1=fopen(name,"r");
+	fread(tree1,sizes,1,f1);
+	fclose(f1);
+}
+
+
+void reportnode(struct trees *tree1,int node0){
+	struct node *nnode;
+	nnode=&tree1->nodes[node0];
+	printf("%s,%s,%d,%d,%d,%d,%d\n",nnode->caption,nnode->text,nnode->back,nnode->nexts,nnode->parent,nnode->delete,nnode->sun);
+}
+
+
+void deletetreenode(struct trees *tree1,int node0){
+	int b=0;
+	int tabs=0;
+	int current=node0;
+	int pr=0;
+	int i=0;
+	int counter=0;
+	struct stacksss stack;
+	struct node *nnode;
+	startstack(&stack);
+	struct node *nnode1;
+	nnode=&tree1->nodes[node0];
+	nnode1=&tree1->nodes[node0];
+	printf("DELETE NODE****");
+	nnode->delete=-1;
+	if (nnode->nexts!=-1){
+		if (nnode->back!=-1){
+			nnode1=&tree1->nodes[nnode->nexts];
+			nnode1->back=nnode->back;
+			nnode1=&tree1->nodes[nnode->back];
+			nnode1->nexts=nnode->nexts;
+		}else{
+			if(nnode->parent!=-1){
+				nnode1=&tree1->nodes[nnode->parent];
+				nnode1->sun=nnode->nexts;
+				nnode->parent=-1;
+			}
+		}
+	}else{
+			
+		if (nnode->back!=-1){
+			nnode1=&tree1->nodes[nnode->back];
+			nnode1->nexts=-1;
+		}else{
+			if(nnode->parent!=-1){
+				nnode1=&tree1->nodes[nnode->parent];
+				nnode1->sun=nnode->nexts;
+				nnode->parent=-1;
+			}
+			
+		}
+	}
+	nnode=&tree1->nodes[node0];
+	nnode->back=-1;
+	nnode->nexts=-1;
+	nnode->parent=-1;
+	while (b!=-1){
+		counter=0;
+		pr=0;
+		for(i=0;i<tabs;i++)printf("    ");
+		printf("%s,%s\n",nnode->caption,nnode->text);
+		nnode->delete=-1;
+		nnode->caption[0]=0;
+		nnode->text[0]=0;
+		if(nnode->sun!=-1){
+			tabs++;
+			push(&stack,current);
+			current=nnode->sun;
+			nnode=&tree1->nodes[current];
+			b=current;
+			pr=-1;
+		}
+		if (pr==0){
+			b=nnode->nexts;
+			if(b!=-1){
+				current=nnode->nexts;
+				nnode=&tree1->nodes[current];
+				b=current;
+				pr=-1;
+			}
+			if (stack.size > 0 && b==-1){
+				b=-1;
+				counter=0;
+				while(stack.size>0 && b==-1){
+					current=pop(&stack);
+					tabs--;
+					nnode=&tree1->nodes[current];
+					counter++;
+					b=nnode->nexts;
+				}
+				if(nnode->nexts != -1){
+					current=nnode->nexts;
+					nnode=&tree1->nodes[current];
+					
+				}				
+			}
+	
+			
+
+		}
+		if(stack.size < 1 && pr==0){
+			b=nnode->nexts;
+		}else{
+			b=current;
+		}
+
+	}
+
+	
+}
+
+void debugtree(struct trees *tree1,int node0,int nodeinto){
+	int i=0;
+	int ii=node0;
+	int iii=nodeinto;
+	if(node0<0 || node0>tree1->size)node0=0;
+	if(nodeinto<0 || node0>tree1->size)nodeinto=tree1->size;
+	for(i=ii;i<iii;i++)reportnode(tree1,i);
+
+}
+
+
 
 int main(int argc,char *argv[]){
 	struct trees tree1;
@@ -187,6 +359,7 @@ int main(int argc,char *argv[]){
 	int X86=-1;
 	int APPLE=-1;
 	int subnode=-1;
+	int subnode1=-1;
 	starttree(&tree1);
 	roots=newnode(&tree1,"PC","pcs");
 	settreeRoot(&tree1,roots);
@@ -212,7 +385,16 @@ int main(int argc,char *argv[]){
 	setfather(&tree1,X86,subnode);	
 	subnode=newnode(&tree1,"X80586","80586");
 	setfather(&tree1,X86,subnode);	
+	subnode1=subnode;
 	subnode=newnode(&tree1,"MAC","mac");
 	setfather(&tree1,APPLE,subnode);	
+	deletetreenode(&tree1,APPLE);
+	printf("***********\n");
 	reporttree(&tree1,tree1.roots);
+	savetree(&tree1,"tree.dat",sizeof(tree1));
+	cleartree(&tree1);
+	/*
+	loadtree(&tree1,"tree.dat",sizeof(tree1));
+	reporttree(&tree1,tree1.roots);
+	*/
 }
