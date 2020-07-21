@@ -3,7 +3,7 @@
 #include <string.h>
 
 #define maxrecords 2048
-
+#define maxtxtsize 33
 
 struct stacksss{
 	int size;
@@ -46,8 +46,8 @@ void reportStack(struct stacksss *stack){
 }
 
 struct node{
-	char caption[32];
-	char text[32];
+	char caption[maxtxtsize];
+	char text[maxtxtsize];
 	int back;
 	int nexts;
 	int parent;
@@ -73,13 +73,13 @@ int newnode(struct trees *tree1,char *caption,char *text){
 	struct node *nnode;
 	if (tree1->size+1<maxrecords){
 		nnode=&tree1->nodes[tree1->size];
-		if(n>31)n=31;
+		if(n>maxtxtsize-1)n=maxtxtsize-1;
 		strncpy(nnode->caption,caption,n);
-		nnode->caption[31]=0;
+		nnode->caption[maxtxtsize-1]=0;
 		n=strlen(text);
-		if(n>31)n=31;
+		if(n>maxtxtsize-1)n=maxtxtsize-1;
 		strncpy(nnode->text,text,n);
-		nnode->text[31]=0;
+		nnode->text[maxtxtsize-1]=0;
 		nnode->back=-1;
 		nnode->nexts=-1;
 		nnode->parent=-1;
@@ -94,13 +94,13 @@ int newnode(struct trees *tree1,char *caption,char *text){
 		}
 		if(i!=-1){
 			nnode=&tree1->nodes[i];
-			if(n>31)n=31;
+			if(n>maxtxtsize-1)n=maxtxtsize-1;
 			strncpy(nnode->caption,caption,n);
-			nnode->caption[31]=0;
+			nnode->caption[maxtxtsize-1]=0;
 			n=strlen(text);
-			if(n>31)n=31;
+			if(n>maxtxtsize-1)n=maxtxtsize-1;
 			strncpy(nnode->text,text,n);
-			nnode->text[31]=0;
+			nnode->text[maxtxtsize-1]=0;
 			nnode->back=-1;
 			nnode->nexts=-1;
 			nnode->parent=-1;
@@ -350,6 +350,25 @@ void debugtree(struct trees *tree1,int node0,int nodeinto){
 
 }
 
+void settreenodecaption(struct trees *tree1,int node0,char *caption){
+	int n=strlen(caption);
+	struct node *nnode;
+	nnode=&tree1->nodes[node0];
+	if(n>maxtxtsize-1)n=maxtxtsize-1;
+	strncpy(nnode->caption,caption,n);
+	nnode->caption[maxtxtsize-1]=0;
+}
+
+void settreenodetext(struct trees *tree1,int node0,char *txt){
+	int n=strlen(txt);
+	struct node *nnode;
+	nnode=&tree1->nodes[node0];
+	if(n>maxtxtsize-1)n=maxtxtsize-1;
+	strncpy(nnode->text,txt,n);
+	nnode->caption[maxtxtsize-1]=0;
+}
+
+
 
 
 int main(int argc,char *argv[]){
@@ -390,6 +409,8 @@ int main(int argc,char *argv[]){
 	setfather(&tree1,APPLE,subnode);	
 	deletetreenode(&tree1,APPLE);
 	printf("***********\n");
+	settreenodecaption(&tree1,tree1.roots,"MYPC");
+	settreenodetext(&tree1,tree1.roots,"MYPC");
 	reporttree(&tree1,tree1.roots);
 	savetree(&tree1,"tree.dat",sizeof(tree1));
 	cleartree(&tree1);
