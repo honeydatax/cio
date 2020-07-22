@@ -31,15 +31,16 @@ long storagegetfilesize(struct storage *store1,char *file){
 void storagesave(struct storage *store1,char *filestorage,char *modes){
 	FILE *f1;
 	f1=fopen(filestorage,modes);
-	fwrite(&store1,store1->sizesof,1,f1);
+	fseek(f1,0,SEEK_SET);
+	fwrite(store1,store1->sizesof,1,f1);
 	fclose(f1);
-
 }
 
 void storageload(struct storage *store1,char *filestorage){
 	FILE *f1;
 	f1=fopen(filestorage,"r");
-	fread(&store1,store1->sizesof,1,f1);
+	fseek(f1,0,SEEK_SET);
+	fread(store1,store1->sizesof,1,f1);
 	fclose(f1);
 }
 
@@ -232,17 +233,18 @@ void storegedeletefile(struct storage *store1,char *filestorage,char *name){
 
 void storegeloadtable(struct storage *store1,char *filestorage){
 	FILE *f1;
-	long filesizeof=store1->size;
+	int i=0;
+	long filesizeof=store1->sizesof;
 	struct storage store2;
+	struct storage *store3;
+	store3=&store2;
 	store1->size=0;
 	store1->current=store1->sizesof+1;
 	f1=fopen(filestorage,"r");
-	fread(&store2,sizeof(store2),1,f1);
+	fread(store3,store1->sizesof-1,1,f1);
 	fclose(f1);
-	
-	if(filesizeof==store2.sizesof){
+	if(store1->sizesof==store3->sizesof){
 		storageload(store1,filestorage);
-		store1->size=filesizeof;
 	}else{
 		printf("this is not a storege file or not same version\n");
 	}
@@ -253,7 +255,7 @@ void storeprinttable (struct storage *store1){
 	struct table *table1;
 	for(i=0;i<store1->size;i++){
 			table1=&store1->tables[i];
-			printf("%s,%d,%d,%d\n",table1->name,table1->start,table1->size,table1->delete);
+			printf("%15s|%12d|%12d|%7d\n",table1->name,table1->start,table1->size,table1->delete);
 	}
 }
 
@@ -267,7 +269,7 @@ int main (int argc,char *argv[]){
 	store1.sizesof=sizeof(store1);
 	if(FileExists("my.dat")!=0){
 		startstorage(&store1,"my.dat");
-/*
+
 		if(FileExists("file1.txt")==0){	
 			filesavestore(&store1,"my.dat","file1.txt","file1.txt");
 		}
@@ -275,17 +277,20 @@ int main (int argc,char *argv[]){
 			filesavestore(&store1,"my.dat","file2.txt","file2.txt");
 		}
 
-*/
+
 	}else{
 		storegeloadtable(&store1,"my.dat");
 	}
 		
-//	storeprinttable(&store1);
+	storeprinttable(&store1);
 
-/*
+	printf("file1-----------\n");
 	fileexitstore(&store1,"my.dat","file1.txt","stdout");
+	printf("file2-----------\n");
 	fileexitstore(&store1,"my.dat","file2.txt","stdout");
-*/
+	//exit(0);
+	return 0;
+
 }
 
 
