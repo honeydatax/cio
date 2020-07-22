@@ -1,0 +1,291 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct table{
+	char name[14];
+	long start;
+	long size;
+	int delete;
+};
+
+struct storage{
+	long sizesof;
+	int size;
+	long current;
+	struct table tables[100];
+};
+
+long storagegetfilesize(struct storage *store1,char *file){
+	long filesize=0;
+	FILE *f1;
+	f1=fopen(file,"r");
+	fseek(f1,0,SEEK_SET);
+	fseek(f1,0,SEEK_END);
+	filesize=ftell(f1);
+	fclose(f1);
+	return filesize;
+
+}
+
+void storagesave(struct storage *store1,char *filestorage,char *modes){
+	FILE *f1;
+	f1=fopen(filestorage,modes);
+	fwrite(&store1,store1->sizesof,1,f1);
+	fclose(f1);
+
+}
+
+void storageload(struct storage *store1,char *filestorage){
+	FILE *f1;
+	f1=fopen(filestorage,"r");
+	fread(&store1,store1->sizesof,1,f1);
+	fclose(f1);
+}
+
+void startstorage(struct storage *store1,char *filestorage){
+	FILE *f1;
+	store1->size=0;
+	store1->current=store1->sizesof+1;
+	storagesave(store1,filestorage,"w");
+}
+
+long filecopys1 (char *f1,char *f2,long pos1,long pos2){
+	char buffer[1025];
+	long l=0;
+	FILE *fs1;
+	FILE *fs2;
+	fs1=fopen(f1,"r");
+	fs2=fopen(f2,"r+");
+	fseek(fs1,pos1,SEEK_SET);
+	fseek(fs2,pos2,SEEK_SET);
+	while(feof(fs1)==0){
+		l=fread(&buffer,1,1024,fs1);
+		fwrite(&buffer,1,l,fs2);
+	}
+	l=ftell(fs1);
+	fclose(fs1);
+	fclose(fs2);
+	return l;
+
+}
+
+
+void filecopyss (char *f1,char *f2,long pos1,long pos2,long size){
+	char buffer[2049];
+	int i=0;
+	int ii=0;
+	long l=2048;
+	long ll=size;
+	long lll=0;
+	FILE *fs1;
+	FILE *fs2;
+	if(pos2==-1){
+		fs2=stdout;
+	}else{
+		fs2=fopen(f2,"w");
+		fseek(fs2,pos2,SEEK_SET);
+
+	}
+	fs1=fopen(f1,"r+");
+	fseek(fs1,pos1,SEEK_SET);
+	lll=ll/2048;
+	ii=(int) lll;
+	lll=ll-(lll*2048);
+	for(i=0;i<ii;i++){
+		fread(&buffer,1,l,fs1);
+		fwrite(&buffer,1,l,fs2);
+	}
+		l=lll;		
+		if(l>0){
+			fread(&buffer,1,l,fs1);
+			fwrite(&buffer,1,l,fs2);
+		}
+		fclose(fs1);
+	if(pos2!=-1)fclose(fs2);
+}
+
+void fileexitstore(struct storage *store1,char *filestorage,char *name,char *file){
+	long filesize=0;
+	int ssize=0;
+	int ii=-1;
+	int iii=-1;
+	int iiii=0;
+	long start=0;
+	struct table *table1;
+	ii=storagefilename(store1,name);
+		if(ii!=-1){
+			table1=&store1->tables[ii];
+			start=table1->start;
+			iiii=0;
+			if(strcmp("stdout",file)==0)iiii=-1;
+			filecopyss(filestorage,file,start,iiii,table1->size);
+		
+		}else{
+			printf("error no more table files\n");
+		}
+		
+}
+
+
+
+
+void filesavestore(struct storage *store1,char *filestorage,char *name,char *file){
+	long filesize=0;
+	int ssize=0;
+	int ii=-1;
+	int iii=-1;
+	long start=0;
+	struct table *table1;
+	filesize=storagegetfilesize(store1,file);
+	ii=storagefilename(store1,name);
+	if(ii==-1){
+		iii=-1;
+		iii=storagesize(store1,filesize);
+		if(iii==-1 && store1->size<99){
+			iii=store1->size;
+			store1->size++;
+			table1=&store1->tables[iii];
+			table1->start=store1->current;
+			store1->current=store1->current+filesize;
+			table1->delete=-1;
+		}
+		if(iii!=-1){
+			table1=&store1->tables[iii];
+			strncpy(table1->name,name,11);
+			table1->name[11]=0;
+			table1->size=filesize;
+			table1->delete=0;
+			filecopys1(file,filestorage,0,table1->start);
+		
+		}else{
+			printf("error no more table files\n");
+		}
+		
+
+	}
+	storagesave(store1,filestorage,"r+");
+	
+}
+
+int storagefilename(struct storage *store1,char *name){
+	int i=0;
+	int ii=-1;
+	struct table *table1;
+	for(i=0;i<store1->size;i++){
+		table1=&store1->tables[i];
+		if(strcmp(name,table1->name)==0){
+			ii=i;
+			i=store1->size+2;
+		}
+	}
+	return ii;
+}
+
+int storagesize(struct storage *store1,long size){
+	int i=0;
+	int ii=-1;
+	long sizes=0;
+	struct table *table1;
+	for(i=0;i<store1->size;i++){
+		table1=&store1->tables[i];
+	    if(table1->delete!=0){
+		sizes=(table1->size)-size;
+		if(size>-1 && sizes<65){
+			ii=i;
+			i=store1->size+2;
+		}
+	   }
+	}
+	return ii;
+}
+
+int FileExists(char *name){
+	int i=0;
+	FILE *f1;
+	f1=fopen(name,"r");
+	if(f1==NULL){
+		i=-1;
+		//printf("error :%s dont exists or damage\n",name);
+	}else{
+		i=0;		
+		fclose(f1);
+	}
+	return i;
+}
+
+void storegedeletefile(struct storage *store1,char *filestorage,char *name){
+	int ii;
+	struct table *table1;
+	ii=storagefilename(store1,name);
+	if(ii!=-1){
+			table1=&store1->tables[ii];
+			table1->name[0]=0;
+			table1->delete=-1;
+
+		}else{
+			printf("error no find file in table files\n");
+		}
+
+	storagesave(store1,filestorage,"r+");
+}
+
+void storegeloadtable(struct storage *store1,char *filestorage){
+	FILE *f1;
+	long filesizeof=store1->size;
+	struct storage store2;
+	store1->size=0;
+	store1->current=store1->sizesof+1;
+	f1=fopen(filestorage,"r");
+	fread(&store2,sizeof(store2),1,f1);
+	fclose(f1);
+	
+	if(filesizeof==store2.sizesof){
+		storageload(store1,filestorage);
+		store1->size=filesizeof;
+	}else{
+		printf("this is not a storege file or not same version\n");
+	}
+}
+
+void storeprinttable (struct storage *store1){
+	int i=0;
+	struct table *table1;
+	for(i=0;i<store1->size;i++){
+			table1=&store1->tables[i];
+			printf("%s,%d,%d,%d\n",table1->name,table1->start,table1->size,table1->delete);
+	}
+}
+
+
+
+
+
+
+int main (int argc,char *argv[]){
+	struct storage store1;
+	store1.sizesof=sizeof(store1);
+	if(FileExists("my.dat")!=0){
+		startstorage(&store1,"my.dat");
+/*
+		if(FileExists("file1.txt")==0){	
+			filesavestore(&store1,"my.dat","file1.txt","file1.txt");
+		}
+		if(FileExists("file2.txt")==0){	
+			filesavestore(&store1,"my.dat","file2.txt","file2.txt");
+		}
+
+*/
+	}else{
+		storegeloadtable(&store1,"my.dat");
+	}
+		
+//	storeprinttable(&store1);
+
+/*
+	fileexitstore(&store1,"my.dat","file1.txt","stdout");
+	fileexitstore(&store1,"my.dat","file2.txt","stdout");
+*/
+}
+
+
