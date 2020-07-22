@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+struct arglist{
+	int size;
+	char separator;
+	char *args[2048];
+};
+
 struct table{
 	char name[14];
 	long start;
@@ -15,6 +21,35 @@ struct storage{
 	long current;
 	struct table tables[100];
 };
+
+void startarglist(struct arglist *arglists,char *s2){
+	char s1[2048];
+	char *p1=NULL;
+	char *p2=NULL;
+	arglists->size=0;
+	strncpy(s1,s2,2047);
+	s1[2047]=0;
+	p1=s1;
+	arglists->args[arglists->size]=s1;
+	arglists->size++;
+	while(p1!=NULL){
+		p2=strchr(p1,arglists->separator);
+		if(p2!=NULL){
+			arglists->args[arglists->size]=p2+1;
+			p1=arglists->args[arglists->size];
+			p2[0]=0;
+			arglists->size++;
+		}else{
+			p1=p2;
+		}
+		
+
+	}
+}
+
+
+
+
 
 long storagegetfilesize(struct storage *store1,char *file){
 	long filesize=0;
@@ -255,12 +290,35 @@ void storeprinttable (struct storage *store1){
 	struct table *table1;
 	for(i=0;i<store1->size;i++){
 			table1=&store1->tables[i];
-			printf("%15s|%12d|%12d|%7d\n",table1->name,table1->start,table1->size,table1->delete);
+			if(table1->delete!=-1)printf("%15s|%12d|%12d|%7d\n",table1->name,table1->start,table1->size,table1->delete);
 	}
 }
 
+void storagemacrosave(struct storage *store1,char *filestorage,char *key){
+	int i=0;
+	struct arglist arglists;
+	char separator=';';
+	arglists.separator=separator;
+	startarglist(&arglists,key);
+	for(i=0;i<arglists.size;i++){
+		if(FileExists(arglists.args[i])==0){	
+			filesavestore(store1,filestorage,arglists.args[i],arglists.args[i]);
+		}else{
+			printf("error : %s file not find\n",arglists.args[i]);
+		}
+	}
+}
 
-
+void storagemacroexits(struct storage *store1,char *filestorage,char *key){
+	int i=0;
+	struct arglist arglists;
+	char separator=';';
+	arglists.separator=separator;
+	startarglist(&arglists,key);
+	for(i=0;i<arglists.size;i++){
+			fileexitstore(store1,filestorage,arglists.args[i],arglists.args[i]);
+	}
+}
 
 
 
@@ -283,11 +341,21 @@ int main (int argc,char *argv[]){
 	}
 		
 	storeprinttable(&store1);
+//	storegedeletefile(&store1,"my.dat","xxxx.txt");
+		if(FileExists("file2.txt")==0){	
+			//filesavestore(&store1,"my.dat","xxxx.txt","file2.txt");
+		}
 
+	storagemacroexits(&store1,"my.dat","file1.txt;file2.txt");	
+	printf("x-----------------\n");
+	storeprinttable(&store1);
+
+/*
 	printf("file1-----------\n");
 	fileexitstore(&store1,"my.dat","file1.txt","stdout");
 	printf("file2-----------\n");
 	fileexitstore(&store1,"my.dat","file2.txt","stdout");
+*/
 	//exit(0);
 	return 0;
 
