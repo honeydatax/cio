@@ -129,9 +129,38 @@ int FileExists(char *name){
 	return i;
 }
 
-void filearraymap(struct maparrayhead *filehead1,char *name, char *arrays){
-	
+void filearraymaploadlevel(struct maparrayhead *filehead1,char *name, char *arrays,char *filefrom){
+	char xxxx[1025];
+	int i=0;
+	FILE *f1;
+	f1=fopen(filefrom,"r");
+	for(i=0;i<filehead1->y;i++){
+		fgets(xxxx,filehead1->x,f1);
+		strncpy(&arrays[i*filehead1->x],xxxx, filehead1->x);
+		if(feof(f1))i=filehead1->y+2;
+	}
+	fclose(f1);
 }
+
+void filearraymapsavelevel(struct maparrayhead *filehead1,char *name, char *arrays,int index,char *fileout){
+	char xxxx[1025];
+	int i=0;
+	FILE *f1;
+	loadarrayindex(filehead1,index,name,arrays);
+	if (strcmp(fileout,"stdout")==0){
+		f1=stdout;
+	}else{
+		f1=fopen(fileout,"w");
+	}
+	for(i=0;i<filehead1->y;i++){
+		strncpy(xxxx,&arrays[i*filehead1->x], filehead1->x);
+		xxxx[filehead1->x]=0;
+		fprintf(f1,"%s\n",xxxx);
+	}
+	if (strcmp(fileout,"stdout")!=0)fclose(f1);
+}
+
+
 
 
 int main(int argc,char *argv[]){
@@ -150,9 +179,10 @@ int main(int argc,char *argv[]){
 	}else{
 		loadheadfilearray(&filehead1,12,12,"array.dat");
 	}
-
-
-	loadarrayindex(&filehead1,8,"array.dat",&map1[0]);
+	i=filehead1.mapslevel;
+	filearraymaploadlevel(&filehead1,"array.dat", &map1[0],"fileout.txt");
+	startmap(&map1[0],filehead1.x,filehead1.y,33);
+	loadarrayindex(&filehead1,0,"array.dat",&map1[0]);
 	reportmap(&map1[0],filehead1.x,filehead1.y);
 
 }
