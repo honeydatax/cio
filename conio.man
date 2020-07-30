@@ -1,0 +1,30 @@
+.\" Manpage for lconio
+.\" honeydatax
+.TH man 0 "15 APR 2017"1.0"lconio man page
+.SH NAME
+lconio \- lconio demo to extend bash command line utilitis
+.SH SYNOPSIS
+lconio  compile:g++ lconio.c -o lconio  run:./lconio
+.SH DESCRIPTION
+lconio demo source code to demo of linux conio style source.
+.SH OPTIONS
+lconio.c  compile:g++ lconio.c -o lconio  run:./lconio void setbcolor(int c); void setcolor(int c);void clear();void gotoxy(int x,int y);void cls();
+.SH ALSO
+more honey datax on net
+.SH BUGS
+not complet yet
+.SH AUTHOR
+honeydatax
+
+
+
+
+
+
+
+
+
+
+
+
+
