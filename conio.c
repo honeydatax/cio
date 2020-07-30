@@ -31,9 +31,9 @@ clear();
 for(y=1;y<21;y++){
 x++;
 gotoxy(x,y); 
-setbcolor(bc);
-setcolor(c);
-printf("im love marina");
+//setbcolor(bc);
+//setcolor(c);
+printf("hello world.!");
 bc++;
 c--;
 if (bc>7) bc=0;
