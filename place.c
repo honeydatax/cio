@@ -333,6 +333,17 @@ void storeprinttable (struct storage *store1){
 	}
 }
 
+void storeprinttablelist (struct storage *store1,char *path){
+	int i=0;
+	struct table *table1;
+	for(i=0;i<store1->size;i++){
+			table1=&store1->tables[i];
+			if(table1->delete!=-1 && strcmp(path,table1->path)==0)printf("%15s|%12d|%12d|%7d| %s\n",table1->name,table1->start,table1->size,table1->delete,table1->path);
+	}
+}
+
+
+
 void storagemacrosave(struct storage *store1,char *filestorage,char *key){
 	int i=0;
 	struct arglist arglists;
@@ -376,13 +387,24 @@ int main (int argc,char *argv[]){
 			filesavestore(&store1,"my.dat","file2.txt","windows\\command\\file2.txt");
 		}
 
+
+		if(FileExists("file2.txt")==0){	
+			filesavestore(&store1,"my.dat","file2.txt","windows\\file3.txt");
+		}
+
+		if(FileExists("file2.txt")==0){	
+			filesavestore(&store1,"my.dat","file2.txt","windows\\file4.txt");
+		}
+
+
+
 	}else{
 		storegeloadtable(&store1,"my.dat");
 	}
 	
 
-
-	storeprinttable(&store1);
+	storeprinttablelist(&store1,"windows\\command");
+	//storeprinttable(&store1);
 	return 0;
 
 }
