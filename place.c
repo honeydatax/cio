@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 	char  *getfile(char *value){
 		char *getss;
 		getss=value;
@@ -343,7 +344,6 @@ void storeprinttablelist (struct storage *store1,char *path){
 }
 
 
-
 void storagemacrosave(struct storage *store1,char *filestorage,char *key){
 	int i=0;
 	struct arglist arglists;
@@ -367,6 +367,17 @@ void storagemacroexits(struct storage *store1,char *filestorage,char *key){
 	startarglist(&arglists,key);
 	for(i=0;i<arglists.size;i++){
 			fileexitstore(store1,filestorage,arglists.args[i],arglists.args[i]);
+	}
+}
+
+
+
+void storedeletefiletable (struct storage *store1,char *file,char *path){
+	int i=0;
+	struct table *table1;
+	for(i=0;i<store1->size;i++){
+			table1=&store1->tables[i];
+			if(table1->delete!=-1 && strcmp(path,table1->path)==0)storegedeletefile(store1,file,table1->name);
 	}
 }
 
@@ -402,9 +413,8 @@ int main (int argc,char *argv[]){
 		storegeloadtable(&store1,"my.dat");
 	}
 	
-
-	storeprinttablelist(&store1,"windows\\command");
-	//storeprinttable(&store1);
+	storedeletefiletable (&store1,"my.dat","windows\\command");
+	storeprinttable(&store1);
 	return 0;
 
 }
