@@ -203,7 +203,7 @@ void filesavestore(struct storage *store1,char *filestorage,char *name,char *fil
 	int iii=-1;
 	long start=0;
 	struct table *table1;
-	strncpy(temsvar,file,189);
+	strncpy(temsvar,name,189);
 	temsvar[189]=0;
 	filesize=storagegetfilesize(store1,getfile(temsvar));
 	strncpy(temsvar,file,189);
@@ -402,7 +402,6 @@ int main (int argc,char *argv[]){
 			filesavestore(&store1,"my.dat","file1.txt","windows\\command\\file1.txt");
 		}
 
-
 		if(FileExists("file2.txt")==0){	
 			filesavestore(&store1,"my.dat","file2.txt","windows\\command\\file2.txt");
 		}
@@ -411,6 +410,9 @@ int main (int argc,char *argv[]){
 		if(FileExists("file2.txt")==0){	
 			filesavestore(&store1,"my.dat","file2.txt","windows\\file3.txt");
 		}
+
+
+
 
 		if(FileExists("file2.txt")==0){	
 			filesavestore(&store1,"my.dat","file2.txt","windows\\file4.txt");
@@ -431,7 +433,7 @@ int main (int argc,char *argv[]){
 		storegeloadtable(&store1,"my.dat");
 	}
 	
-	storedeletetreefiletable(&store1,"my.dat","windows");
+	//storedeletetreefiletable(&store1,"my.dat","windows");
 	storeprinttable(&store1);
 	return 0;
 
