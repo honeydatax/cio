@@ -24,24 +24,6 @@ void sety(int y);
 void gotoxy(int x,int y);
 void cls();
 
-int main(){
-int x=1,y=1,bc=0,c=7;
-cls();
-clear();
-for(y=1;y<21;y++){
-x++;
-gotoxy(x,y); 
-setbcolor(bc);
-setcolor(c);
-printf("im love marina");
-bc++;
-c--;
-if (bc>7) bc=0;
-if (c<0) c=7;
-}
-return 0;
-}
-
 
 void setx(int x){
 xx=x;
