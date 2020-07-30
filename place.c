@@ -381,6 +381,15 @@ void storedeletefiletable (struct storage *store1,char *file,char *path){
 	}
 }
 
+void storedeletetreefiletable (struct storage *store1,char *file,char *path){
+	int i=0;
+	struct table *table1;
+	for(i=0;i<store1->size;i++){
+			table1=&store1->tables[i];
+			if(table1->delete!=-1 && strncmp(path,table1->path,strlen(path))==0)storegedeletefile(store1,file,table1->name);
+	}
+}
+
 
 
 int main (int argc,char *argv[]){
@@ -407,13 +416,22 @@ int main (int argc,char *argv[]){
 			filesavestore(&store1,"my.dat","file2.txt","windows\\file4.txt");
 		}
 
+		if(FileExists("file2.txt")==0){	
+			filesavestore(&store1,"my.dat","file2.txt","dos\\file5.txt");
+		}
+
+		if(FileExists("file2.txt")==0){	
+			filesavestore(&store1,"my.dat","file2.txt","dos\\file6.txt");
+		}
+
+
 
 
 	}else{
 		storegeloadtable(&store1,"my.dat");
 	}
 	
-	storedeletefiletable (&store1,"my.dat","windows\\command");
+	storedeletetreefiletable(&store1,"my.dat","windows");
 	storeprinttable(&store1);
 	return 0;
 
