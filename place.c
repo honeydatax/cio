@@ -391,6 +391,16 @@ void storedeletetreefiletable (struct storage *store1,char *file,char *path){
 }
 
 
+void storefindfiletable (struct storage *store1,char *file,char *path){
+	int i=0;
+	struct table *table1;
+	for(i=0;i<store1->size;i++){
+			table1=&store1->tables[i];
+			if(table1->delete!=-1 && strcmp(path,table1->path)==0 && strstr(table1->name,file)!=NULL)printf("%15s|%12d|%12d|%7d| %s\n",table1->name,table1->start,table1->size,table1->delete,table1->path);
+	}
+}
+
+
 
 int main (int argc,char *argv[]){
 	struct storage store1;
@@ -433,7 +443,9 @@ int main (int argc,char *argv[]){
 		storegeloadtable(&store1,"my.dat");
 	}
 	
+	storefindfiletable (&store1,"6","dos");
 	//storedeletetreefiletable(&store1,"my.dat","windows");
+	printf("!!!!!!!\n");
 	storeprinttable(&store1);
 	return 0;
 
